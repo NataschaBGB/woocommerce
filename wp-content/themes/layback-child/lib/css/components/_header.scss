@@ -1,0 +1,125 @@
+/* Header
+------------------------------------------------------*/
+
+.site-header {
+	position: relative;
+	z-index: 999;
+	display: flex;
+	justify-content: space-between;
+	padding: 0 15px;
+
+	// .admin-bar & {
+	// 	top: 32px;
+	// }
+
+	/* Header site logo
+	------------------------------------------------------*/
+
+	.site-logo{
+		svg,
+		img {
+			display: block;
+			margin: 10px auto;
+			max-width: 300px;
+			width: 100%;
+			padding: 0 15px;
+		}
+	}
+
+	/* Navigation
+	------------------------------------------------------*/
+
+	.site-navigation {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+
+		ul {
+			margin: 0;
+			padding: 0;
+			display: flex;
+
+			li {
+				list-style: none;
+				position: relative;
+
+				&.current-menu-item {
+					> a {
+						font-weight: 700;
+					}
+				}
+
+				a {
+					display: block;
+					padding: 0 15px;
+				}
+
+				/* 2. level sub menu
+				------------------------------------------------------*/
+
+				&:hover{
+					.sub-menu{
+						pointer-events: all;
+						visibility: visible;
+						opacity: 1;
+					}
+				}
+
+				.sub-menu{
+					position: absolute;
+					top: 100%;
+					left: 50%;
+					transform: translateX(-50%);
+					pointer-events: none;
+					visibility: hidden;
+					opacity: 0;
+					display: block;
+					// transition: 200ms;
+					background-color: $darkgray;
+
+					li{
+						position: relative;
+
+						&:hover,
+						&.current-menu-item {
+							background-color: lighten($darkgray, 5%);
+						}
+
+						a{
+							white-space: nowrap;
+							padding: 5px 30px;
+							color: #fff;
+						}
+
+						/* 3. level sub menu (hidden by default)
+						------------------------------------------------------*/
+
+						// &:hover{
+							
+						// 	.sub-menu{
+						// 		pointer-events: all;
+						// 		visibility: visible;
+						// 		opacity: 1;
+						// 	}
+
+						// }
+
+						.sub-menu{
+							display: none;
+							// pointer-events: none;
+							// visibility: hidden;
+							// opacity: 0;
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+}
