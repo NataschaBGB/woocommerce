@@ -56,7 +56,7 @@ class WC_Cart extends WC_Legacy_Cart {
 	 * @var array
 	 */
 	protected $default_totals = array(
-		'subtotal'            => 0,
+		'subtotal'            => 500,
 		'subtotal_tax'        => 0,
 		'shipping_total'      => 0,
 		'shipping_tax'        => 0,

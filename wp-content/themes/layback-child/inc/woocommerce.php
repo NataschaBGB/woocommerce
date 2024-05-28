@@ -38,7 +38,7 @@
 	/* WooCommerce products per page
 	------------------------------------------------------------------ */
 	
-	add_filter( 'loop_shop_per_page', 'lb_products_per_page', 20 );
+	add_filter( 'loop_shop_per_page', 'lb_products_per_page', 2 );
 	if(!function_exists('lb_products_per_page'))
 	{
 		function lb_products_per_page() {
@@ -65,6 +65,7 @@
 
 		remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20, 0 );
 		remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30, 0 );
+		// remove_action( 'woocommerce_cart_is_empty', 'woocommerce_empty_cart_message', 10 );
 
 	}
 
