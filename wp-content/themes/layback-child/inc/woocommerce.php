@@ -1,6 +1,5 @@
 <?php
 
-	
 	/* WooCommerce support
 	------------------------------------------------------------------ */
 
@@ -38,7 +37,7 @@
 	/* WooCommerce products per page
 	------------------------------------------------------------------ */
 	
-	add_filter( 'loop_shop_per_page', 'lb_products_per_page', 2 );
+	add_filter( 'loop_shop_per_page', 'lb_products_per_page', 20 );
 	if(!function_exists('lb_products_per_page'))
 	{
 		function lb_products_per_page() {
@@ -65,7 +64,6 @@
 
 		remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20, 0 );
 		remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30, 0 );
-		// remove_action( 'woocommerce_cart_is_empty', 'woocommerce_empty_cart_message', 10 );
 
 	}
 
@@ -117,4 +115,120 @@
 
 		return $fields;
 
+	}
+
+
+	/* WooCommerce custom functions
+	------------------------------------------------------------------ */
+
+	// prevent variatin (in this case: size) to be added to cart if it has ID=15 (can be found on wp wc admin page - 'Products')
+	add_filter( 'woocommerce_add_to_cart_validation', 'variation_check', 10, 5 );
+    function variation_check( $passed, $product_id, $quantity, $variation_id = 0, $variations = null ) {
+        if ( $variation_id == 15 ) {
+            wc_add_notice( __( 'Sorry, you cannot add this product to the cart.', 'your-text-domain' ), 'error' );
+            return false;
+        }
+        return $passed;
+    }
+
+	// when order status is changed to 'completed' in wc admin 'Orders' - send http request with content of $data to $url
+	// CHANGE TO COMPLETED
+	add_action('woocommerce_order_status_changed', 'send_http_request');
+    function send_http_request($order_id) {
+
+		// get order details
+		$order = wc_get_order( $order_id );
+
+		// get customer details
+		$customer_name = $order->get_billing_first_name().' '.$order->get_billing_last_name();
+		$customer_address = array(
+			"street" 	=> $order->get_billing_address_1().', '.$order->get_billing_address_2(),
+			"postcode" 	=> $order->get_billing_postcode(),
+			"city" 		=> $order->get_billing_city(),
+			"state" 	=>$order->get_billing_state()
+		);
+		$customer_email = $order->get_billing_email();
+		$customer_phone = $order->get_billing_phone();
+		$customer_note 	= $order->get_customer_note();
+
+		// in case shipping address is different from user address
+		// get shipping info
+		$shipping_name = $order->get_shipping_first_name().' '.$order->get_shipping_last_name();
+		$shipping_address = array(
+			"street" 	=> $order->get_shipping_address_1().', '.$order->get_shipping_address_2(),
+			"postcode" 	=> $order->get_shipping_postcode(),
+			"city" 		=> $order->get_shipping_city(),
+			"state" 	=> $order->get_shipping_state()
+		);
+
+		// create items array
+		$product_details = array();
+		// get and loop through order items
+		foreach ($order->get_items() as $item) {
+			$product_id 		= $item->get_product_id();
+			$product_name 		= $item->get_name();
+			$quantity      		= $item->get_quantity();
+			$price 				= $item->get_total();
+
+			// push details in to items array
+			array_push($product_details, array(
+				'order_id' 		=> $order_id,
+				'product_id' 	=> $product_id,
+				'product_name'	=> $product_name,
+				'quantity' 		=> $quantity,
+				'price' 		=> $price.' DKK'
+			));
+		};
+		// get shipping price
+		$shipping = $order->get_shipping_total() + $order->get_shipping_tax();
+		// total price of full order
+		$full_price = $order->get_total();
+
+		// make array to include customer info, shipping info and items info
+		$order_details = array(
+			"customer_note" => $customer_note,
+			"customer_info" => array(
+				"name" 		=> $customer_name,
+				"address"	=> $customer_address,
+				"email" 	=> $customer_email,
+				"phone" 	=> $customer_phone
+			),
+			"shipping_info" => array(
+				"name" 		=> $shipping_name,
+				"address"	=> $shipping_address
+			),
+			"items" => $product_details,
+			"shipping" => $shipping.' DKK',
+			"order_total" 	=> $full_price.' DKK'
+		);
+
+		// converte array to json file
+		$postdata = json_encode($order_details);
+
+		// set up cURL to post json file
+		$url = "https://webhook.site/8a5f628a-4ac7-4cd4-935e-2a0349c4c10d";
+
+		// initialize curl session
+		$curl = curl_init();
+
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_POST, true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		
+		// ignore ssl
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+		
+		// execute cURL session
+		$response = curl_exec($curl);
+
+		// if cURL session is not executed
+		if(!$response){
+			// tell what error
+			die("Error: " . curl_error($curl) . "- Code: " . curl_errno($curl));
+		}
+
+		// close cURL session
+		curl_close($curl);
 	}
