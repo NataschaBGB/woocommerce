@@ -132,7 +132,7 @@
     }
 
 	// when order status is changed to 'completed' in wc admin 'Orders' - send http request to $url
-	add_action('woocommerce_order_status_completed', 'send_http_request');
+	add_action('woocommerce_order_status_changed', 'send_http_request');
     function send_http_request($order_id) {
 
 		// get order details
