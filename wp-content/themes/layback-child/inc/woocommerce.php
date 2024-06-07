@@ -131,35 +131,12 @@
         return $passed;
     }
 
-	// when order status is changed to 'completed' in wc admin 'Orders' - send http request with content of $data to $url
-	// CHANGE TO COMPLETED
-	add_action('woocommerce_order_status_changed', 'send_http_request');
+	// when order status is changed to 'completed' in wc admin 'Orders' - send http request to $url
+	add_action('woocommerce_order_status_completed', 'send_http_request');
     function send_http_request($order_id) {
 
 		// get order details
-		$order = wc_get_order( $order_id );
-
-		// get customer details
-		$customer_name = $order->get_billing_first_name().' '.$order->get_billing_last_name();
-		$customer_address = array(
-			"street" 	=> $order->get_billing_address_1().', '.$order->get_billing_address_2(),
-			"postcode" 	=> $order->get_billing_postcode(),
-			"city" 		=> $order->get_billing_city(),
-			"state" 	=>$order->get_billing_state()
-		);
-		$customer_email = $order->get_billing_email();
-		$customer_phone = $order->get_billing_phone();
-		$customer_note 	= $order->get_customer_note();
-
-		// in case shipping address is different from user address
-		// get shipping info
-		$shipping_name = $order->get_shipping_first_name().' '.$order->get_shipping_last_name();
-		$shipping_address = array(
-			"street" 	=> $order->get_shipping_address_1().', '.$order->get_shipping_address_2(),
-			"postcode" 	=> $order->get_shipping_postcode(),
-			"city" 		=> $order->get_shipping_city(),
-			"state" 	=> $order->get_shipping_state()
-		);
+		$order = wc_get_order($order_id);
 
 		// create items array
 		$product_details = array();
@@ -170,39 +147,50 @@
 			$quantity      		= $item->get_quantity();
 			$price 				= $item->get_total();
 
-			// push details in to items array
+			// push and create array for each item
 			array_push($product_details, array(
-				'order_id' 		=> $order_id,
-				'product_id' 	=> $product_id,
-				'product_name'	=> $product_name,
-				'quantity' 		=> $quantity,
-				'price' 		=> $price.' DKK'
+				"product_id" 	=> $product_id,
+				"product_name"	=> $product_name,
+				"quantity" 		=> $quantity,
+				"price" 		=> $price.' DKK'
 			));
 		};
-		// get shipping price
-		$shipping = $order->get_shipping_total() + $order->get_shipping_tax();
-		// total price of full order
-		$full_price = $order->get_total();
 
-		// make array to include customer info, shipping info and items info
 		$order_details = array(
-			"customer_note" => $customer_note,
+			// get customer info
+			"customer_note" => $order->get_customer_note(),
 			"customer_info" => array(
-				"name" 		=> $customer_name,
-				"address"	=> $customer_address,
-				"email" 	=> $customer_email,
-				"phone" 	=> $customer_phone
+				"name" 		=> $order->get_billing_first_name().' '.$order->get_billing_last_name(),
+				"email" 	=> $order->get_billing_email(),
+				"phone" 	=> $order->get_billing_phone(),
+				"address"	=> array(
+					"street" 	=> $order->get_billing_address_1().', '.$order->get_billing_address_2(),
+					"postcode" 	=> $order->get_billing_postcode(),
+					"city" 		=> $order->get_billing_city(),
+					"state" 	=>$order->get_billing_state()
+				)
 			),
+			// get shipping info
 			"shipping_info" => array(
-				"name" 		=> $shipping_name,
-				"address"	=> $shipping_address
+				"name" 		=> $order->get_shipping_first_name().' '.$order->get_shipping_last_name(),
+				"address"	=> array(
+					"street" 	=> $order->get_shipping_address_1().', '.$order->get_shipping_address_2(),
+					"postcode" 	=> $order->get_shipping_postcode(),
+					"city" 		=> $order->get_shipping_city(),
+					"state" 	=> $order->get_shipping_state()
+				)
 			),
-			"items" => $product_details,
-			"shipping" => $shipping.' DKK',
-			"order_total" 	=> $full_price.' DKK'
+			// items = each item array in product_details
+			"order" => array(
+				"order_id" 	=> $order_id,
+				"items" 	=> $product_details,
+				// get shipping and full order price
+				"shipping" => $order->get_shipping_total() + $order->get_shipping_tax().' DKK',
+				"order_total" 	=> $order->get_total().' DKK'
+			),
 		);
 
-		// converte array to json file
+		// converte order_details array to json file
 		$postdata = json_encode($order_details);
 
 		// set up cURL to post json file
@@ -213,6 +201,7 @@
 
 		curl_setopt($curl, CURLOPT_URL, $url);
 		curl_setopt($curl, CURLOPT_POST, true);
+		// post the $postdata json file
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		
