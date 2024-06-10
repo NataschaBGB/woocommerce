@@ -147,7 +147,7 @@
 			$quantity      		= $item->get_quantity();
 			$price 				= $item->get_total();
 
-			// push and create array for each item
+			// push into array and create new array for each item
 			array_push($product_details, array(
 				"product_id" 	=> $product_id,
 				"product_name"	=> $product_name,
