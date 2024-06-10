@@ -59,7 +59,7 @@
 		remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20, 0 );
 		
 
-		/* WooCommerve archive
+		/* WooCommerce archive
 		------------------------------------------------------------------ */
 
 		remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20, 0 );
@@ -68,7 +68,7 @@
 	}
 
 
-	/* WooCommerve dynamic cart
+	/* WooCommerce dynamic cart
 	------------------------------------------------------------------ */
 
 	// add_filter('add_to_cart_fragments', 'lb_woocommerce_header_add_to_cart_fragment');
@@ -91,7 +91,7 @@
 	}
 
 
-	/* WooCommerve checkout
+	/* WooCommerce checkout
 	------------------------------------------------------------------ */
 
 	// add_filter( 'woocommerce_checkout_fields' , 'lb_checkout_billing_fields', 20, 1 );
@@ -121,7 +121,7 @@
 	/* WooCommerce custom functions
 	------------------------------------------------------------------ */
 
-	// prevent variatin (in this case: size) to be added to cart if it has ID=15 (can be found on wp wc admin page - 'Products')
+	// prevent variation (in this case: size) to be added to cart if it has ID=15 (can be found on wp wc admin page - 'Products')
 	add_filter( 'woocommerce_add_to_cart_validation', 'variation_check', 10, 5 );
     function variation_check( $passed, $product_id, $quantity, $variation_id = 0, $variations = null ) {
         if ( $variation_id == 15 ) {
@@ -165,7 +165,7 @@
 				"phone" 	=> $order->get_billing_phone(),
 				"address"	=> array(
 					"street" 	=> $order->get_billing_address_1().', '.$order->get_billing_address_2(),
-					"postcode" 	=> $order->get_billing_postcode(),
+					"postal_code" 	=> $order->get_billing_postcode(),
 					"city" 		=> $order->get_billing_city(),
 					"state" 	=>$order->get_billing_state()
 				)
@@ -175,7 +175,7 @@
 				"name" 		=> $order->get_shipping_first_name().' '.$order->get_shipping_last_name(),
 				"address"	=> array(
 					"street" 	=> $order->get_shipping_address_1().', '.$order->get_shipping_address_2(),
-					"postcode" 	=> $order->get_shipping_postcode(),
+					"postal_code" 	=> $order->get_shipping_postcode(),
 					"city" 		=> $order->get_shipping_city(),
 					"state" 	=> $order->get_shipping_state()
 				)
@@ -214,7 +214,7 @@
 
 		// if cURL session is not executed
 		if(!$response){
-			// tell what error
+			// tell what error and error number
 			die("Error: " . curl_error($curl) . "- Code: " . curl_errno($curl));
 		}
 
