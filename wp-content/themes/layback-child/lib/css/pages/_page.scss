@@ -1,0 +1,75 @@
+.animals {
+    .container {
+        position: relative;
+        h1 {
+
+        }
+        #confirmation {
+            position: absolute;
+            top: 0;
+            display:none;
+            height:300px;
+            background-color:red;
+        }
+        #errorMsg {
+
+        }
+        #new_animal {
+            label {
+
+            }
+            input {
+
+            }
+            select {
+                option {
+
+                }
+            }
+            button.create_animal {
+
+            }
+        }
+
+        hr {
+
+        }
+
+        .display_animals {
+            h1 {
+                .errorMsg {
+
+                }
+                table {
+                    thead {
+                        tr {
+                            th {
+
+                            }
+                        }
+                    }
+                    tbody {
+                        tr {
+                            td {
+                                input {
+
+                                }
+                                select {
+                                    option {
+
+                                    }
+                                }
+                                button.animal_update {
+
+                                }
+                                button.animal_delete {
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
